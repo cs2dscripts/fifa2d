@@ -133,7 +133,7 @@ function ReplayHandler:end_replay(state, player_list)
 	for _, pid in ipairs(player_list) do
 		if player(pid, "exists") and player(pid, "health") > 0 then
 			local team = PlayerRepository:get_player_team(pid)
-			local new_x = (team == 2) and (45 * 32) or (50 * 32)
+			local new_x = (team == 2) and (45 * 32) or (65 * 32)
 			parse('setpos ' .. pid .. ' ' .. new_x .. ' ' .. player(pid, "y"))
 		end
 	end
@@ -145,3 +145,4 @@ end
 
 -- Retornar módulo
 return ReplayHandler
+
