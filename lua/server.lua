@@ -1,0 +1,1 @@
+dofile('sys/lua/src/main.lua')
