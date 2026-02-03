@@ -1,19 +1,19 @@
 --[[
 ================================================================================
-  M©DULO DE CONFIGURA©©O - CS2D Football Game
-  Responsabilidade: Centralizar todas as configura©©es do jogo
+  MÂ©DULO DE CONFIGURAÂ©Â©O - CS2D Football Game
+  Responsabilidade: Centralizar todas as configuraÂ©Â©es do jogo
   
-  Este m©dulo cont©m todas as constantes de configura©©o:
-  - Caminhos de sons e gr©ficos
+  Este mÂ©dulo contÂ©m todas as constantes de configuraÂ©Â©o:
+  - Caminhos de sons e grÂ©ficos
   - Textos e mensagens do jogo
-  - Par©metros de gameplay (velocidades, limites, etc.)
+  - ParÂ©metros de gameplay (velocidades, limites, etc.)
 ================================================================================
 --]]
 
 local Config = {}
 
 -- ============================================================================
--- CONFIGURA©©ES DE ©UDIO
+-- CONFIGURAÂ©Â©ES DE Â©UDIO
 -- ============================================================================
 Config.SOUNDS = {
 	apito = "bombapatch/apito.ogg",
@@ -36,7 +36,7 @@ Config.SOUNDS = {
 }
 
 -- ============================================================================
--- CONFIGURA©©ES DE GR©FICOS
+-- CONFIGURAÂ©Â©ES DE GRÂ©FICOS
 -- ============================================================================
 Config.GRAPHICS = {
 	ball = "gfx/bombapatch/ball.png",
@@ -53,20 +53,20 @@ Config.GRAPHICS = {
 -- TEXTOS DO JOGO
 -- ============================================================================
 Config.TEXTS = {
-	stamina_warning = "©255000000Aguarde a stamina recarregar completamente!",
-	leaderboard_title = "©255255255Top Artilheiros FIFA2D",
-	leaderboard_empty = "©255255255Nenhum gol marcado ainda!",
+	stamina_warning = "Â©255000000Aguarde a stamina recarregar completamente!",
+	leaderboard_title = "Â©255255255Top Artilheiros FIFA2D",
+	leaderboard_empty = "Â©255255255Nenhum gol marcado ainda!",
 	goal_flamengo = "GOOOOOL DO FLAMENGO! ?",
 	goal_corinthians = "GOOOOOL DO CORINTHIANS! ?",
-	scorer_format = "©255255000%s@C",  -- %s = nome do jogador
-	reset_countdown_3 = "©255000000A partida vai resetar em 3... %s ganhou! @C",  -- %s = nome do time
-	reset_countdown_2 = "©255000000A partida vai resetar em 2... @C",
-	reset_countdown_1 = "©255000000A partida vai resetar em 1... @C",
-	reset_complete = "©000255000[RESET] Jogo resetado! @C"
+	scorer_format = "Â©255255000%s@C",  -- %s = nome do jogador
+	reset_countdown_3 = "Â©255000000A partida vai resetar em 3... %s ganhou! @C",  -- %s = nome do time
+	reset_countdown_2 = "Â©255000000A partida vai resetar em 2... @C",
+	reset_countdown_1 = "Â©255000000A partida vai resetar em 1... @C",
+	reset_complete = "Â©000255000[RESET] Jogo resetado! @C"
 }
 
 -- ============================================================================
--- CONFIGURA©©ES DE GAMEPLAY
+-- CONFIGURAÂ©Â©ES DE GAMEPLAY
 -- ============================================================================
 Config.BALL = {
 	friction = 0.2,
@@ -114,13 +114,15 @@ Config.BACKGROUND_SOUND = {
 }
 
 -- ============================================================================
--- INICIALIZA©©O DO SERVER
+-- INICIALIZAÂ©Â©O DO SERVER
 -- ============================================================================
 Config.SERVER_COMMANDS = {
 	'mp_damagefactor 0',
 	'mp_hud 0',
-	'mp_radar 0'
+	'mp_radar 0',
+	'transfer_speed 500'
 }
 
--- Retornar m©dulo
+-- Retornar mÂ©dulo
 return Config
+
