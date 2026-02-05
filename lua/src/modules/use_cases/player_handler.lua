@@ -133,19 +133,28 @@ function PlayerHandler:on_player_key(state, pid, key, key_state)
 		end
 	end
 	
-	-- key "X" para ativar/desativar controle por cursor (comando secreto)
+	-- key "X" para ativar/desativar controle da bola por cursor
 	if key == "X" or key == "x" then
 		if key_state == 1 then  -- Soltou a tecla
-			if state.cursor_control.active and state.cursor_control.player_id == pid then
+			local MathUtils = require("src.modules.utils.math_utils")
+			local px = player(pid, "x")
+			local py = player(pid, "y")
+			local dist_to_ball = MathUtils:distance(state.ball.x, state.ball.y, px, py)
+			
+			if state.ball_control.active and state.ball_control.player_id == pid then
 				-- Desativar
-				state.cursor_control.active = false
-				state.cursor_control.player_id = nil
-				msg2(pid, "©255000000Cursor control DESATIVADO")
+				state.ball_control.active = false
+				state.ball_control.player_id = nil
+				state.ball_control.timer = 0
 			else
-				-- Ativar para este jogador
-				state.cursor_control.active = true
-				state.cursor_control.player_id = pid
-				msg2(pid, "©000255000Cursor control ATIVADO! A bola segue seu cursor.")
+				-- Verificar se está dentro do raio de domínio
+				if dist_to_ball <= 60 and state.goal.last_ball_toucher == pid then
+					-- Ativar para este jogador
+					state.ball_control.active = true
+					state.ball_control.player_id = pid
+					state.ball_control.timer = 0
+			
+				end
 			end
 		end
 	end

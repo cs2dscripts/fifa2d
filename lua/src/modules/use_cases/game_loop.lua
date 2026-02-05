@@ -64,6 +64,18 @@ local function update_ball_holder_indicator(state)
 			ImageUtils:color(state.goal.ball_holder_indicator, 255, 255, 0)
 			ImageUtils:scale(state.goal.ball_holder_indicator, 5 / 32, 5 / 32)
 			ImageUtils:alpha(state.goal.ball_holder_indicator, 1.0)
+		else
+			-- Jogador saiu do raio, desativar controle se estiver ativo
+			if state.ball_control.active and state.ball_control.player_id == state.goal.last_ball_toucher then
+				state.ball_control.active = false
+				state.ball_control.player_id = nil
+			end
+		end
+	else
+		-- Nenhum jogador com a bola, desativar controle
+		if state.ball_control.active then
+			state.ball_control.active = false
+			state.ball_control.player_id = nil
 		end
 	end
 end
@@ -146,10 +158,23 @@ function GameLoop:update(state)
 	-- Verificar colisões
 	BallService:check_player_collision(state, player_list)
 	
-	-- Sistema secreto: controle por cursor
-	if state.cursor_control.active and state.cursor_control.player_id then
-		BallService:follow_cursor(state, state.cursor_control.player_id)
+	-- Sistema de controle da bola (ativado com X, funciona apenas no raio)
+	if state.ball_control.active and state.ball_control.player_id then
+		-- Incrementar timer
+		state.ball_control.timer = state.ball_control.timer + 1
+		
+		-- Verificar se passou o tempo limite
+		if state.ball_control.timer >= state.ball_control.max_time then
+			local pid = state.ball_control.player_id
+			state.ball_control.active = false
+			state.ball_control.player_id = nil
+			state.ball_control.timer = 0
+		else
+			BallService:follow_cursor_limited(state, state.ball_control.player_id)
+		end
 	else
+		-- Resetar timer quando não está ativo
+		state.ball_control.timer = 0
 		-- Atualizar física da bola normalmente
 		BallService:update_physics(state)
 	end

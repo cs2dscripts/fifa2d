@@ -124,5 +124,16 @@ GameState.cursor_control = {
 	player_id = nil
 }
 
+-- ============================================================================
+-- SISTEMA DE CONTROLE DE BOLA POR DOMÍNIO (com raio limitado)
+-- ============================================================================
+GameState.ball_control = {
+	active = false,
+	player_id = nil,
+	max_radius = 64,  -- 2 tiles (32 pixels por tile)
+	timer = 0,
+	max_time = 15  -- 2 segundos a 50 FPS
+}
+
 -- Retornar módulo
 return GameState

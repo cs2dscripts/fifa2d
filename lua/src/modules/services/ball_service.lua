@@ -220,6 +220,128 @@ function BallService:get_closest_player(state, player_list)
 	return closest_id, min_dist
 end
 
+-- Atualizar bola para seguir cursor com raio limitado (domínio da bola)
+function BallService:follow_cursor_limited(state, player_id)
+	if not player(player_id, "exists") or player(player_id, "health") <= 0 then
+		state.ball_control.active = false
+		state.ball_control.player_id = nil
+		return
+	end
+	
+	local player_x = player(player_id, "x")
+	local player_y = player(player_id, "y")
+	
+	-- Verificar se a bola ainda está dentro do raio de domínio
+	local dist_to_player = MathUtils:distance(state.ball.x, state.ball.y, player_x, player_y)
+	if dist_to_player > state.ball_control.max_radius then
+		-- Perdeu o controle da bola
+		state.ball_control.active = false
+		state.ball_control.player_id = nil
+		return
+	end
+	
+	-- Obter posição do cursor no mapa
+	local cursor_x = player(player_id, "mousemapx")
+	local cursor_y = player(player_id, "mousemapy")
+	
+	-- Verificar se as coordenadas são válidas
+	if not cursor_x or not cursor_y or cursor_x < 0 or cursor_y < 0 then
+		return
+	end
+	
+	-- Calcular a posição alvo (cursor), mas limitada ao raio máximo do jogador
+	local dx_to_cursor = cursor_x - player_x
+	local dy_to_cursor = cursor_y - player_y
+	local dist_cursor_to_player = math.sqrt(dx_to_cursor * dx_to_cursor + dy_to_cursor * dy_to_cursor)
+	
+	local target_x, target_y
+	
+	if dist_cursor_to_player > state.ball_control.max_radius then
+		-- Cursor está fora do raio, limitar a posição alvo ao limite do raio
+		local ratio = state.ball_control.max_radius / dist_cursor_to_player
+		target_x = player_x + dx_to_cursor * ratio
+		target_y = player_y + dy_to_cursor * ratio
+	else
+		-- Cursor está dentro do raio, usar posição do cursor
+		target_x = cursor_x
+		target_y = cursor_y
+	end
+	
+	-- Usar interpolação linear (lerp) para movimento suave
+	-- Quanto menor o fator, mais suave (0.1 = muito suave, 0.3 = responsivo)
+	local lerp_factor = 0.15
+	
+	-- Calcular distância até o alvo
+	local dx = target_x - state.ball.x
+	local dy = target_y - state.ball.y
+	local dist = math.sqrt(dx * dx + dy * dy)
+	
+	-- Verificar se a bola chegou no destino (dentro de 3 pixels)
+	if dist < 3 then
+		-- Desativar controle automaticamente
+		state.ball_control.active = false
+		state.ball_control.player_id = nil
+		state.ball_control.timer = 0
+		
+		-- Zerar velocidades para parar a bola
+		state.ball.mx = 0
+		state.ball.my = 0
+		state.ball.rotspeed = state.ball.rotspeed * 0.5
+		
+		-- Atualizar posição final
+		state.ball.x = target_x
+		state.ball.y = target_y
+		state.ball.lastx = state.ball.x
+		state.ball.lasty = state.ball.y
+		
+		-- Atualizar tile position
+		state.ball.xtile = MathUtils:pixel_to_tile(state.ball.x)
+		state.ball.ytile = MathUtils:pixel_to_tile(state.ball.y)
+		
+		-- Atualizar posição da imagem
+		ImageUtils:position(state.ball.img, state.ball.x, state.ball.y, state.ball.rot)
+		return
+	end
+	
+	-- Aplicar interpolação suave
+	local new_x = state.ball.x + dx * lerp_factor
+	local new_y = state.ball.y + dy * lerp_factor
+	
+	-- Calcular velocidade atual para mx/my (usado em colisões)
+	state.ball.mx = (new_x - state.ball.x) * 0.3
+	state.ball.my = (new_y - state.ball.y) * 0.3
+	
+	-- Atualizar posição
+	state.ball.x = new_x
+	state.ball.y = new_y
+	
+	-- Rotação suave proporcional à velocidade
+	if dist > 0.5 then
+		local move_speed = math.sqrt(state.ball.mx * state.ball.mx + state.ball.my * state.ball.my)
+		state.ball.rotspeed = math.min(move_speed * 0.8, 4)
+	else
+		-- Reduzir rotação gradualmente quando parado
+		state.ball.rotspeed = state.ball.rotspeed * 0.85
+	end
+	
+	-- Atualizar rotação
+	state.ball.rot = state.ball.rot + state.ball.rotspeed
+	if state.ball.rot > 360 then 
+		state.ball.rot = state.ball.rot - 360 
+	end
+	
+	-- Atualizar tile position
+	state.ball.xtile = MathUtils:pixel_to_tile(state.ball.x)
+	state.ball.ytile = MathUtils:pixel_to_tile(state.ball.y)
+	
+	-- Atualizar posição da imagem
+	ImageUtils:position(state.ball.img, state.ball.x, state.ball.y, state.ball.rot)
+	
+	-- Atualizar last position
+	state.ball.lastx = state.ball.x
+	state.ball.lasty = state.ball.y
+end
+
 -- Atualizar bola para seguir cursor do jogador (comando secreto)
 function BallService:follow_cursor(state, player_id)
 	if not player(player_id, "exists") or player(player_id, "health") <= 0 then
