@@ -220,5 +220,67 @@ function BallService:get_closest_player(state, player_list)
 	return closest_id, min_dist
 end
 
+-- Atualizar bola para seguir cursor do jogador (comando secreto)
+function BallService:follow_cursor(state, player_id)
+	if not player(player_id, "exists") or player(player_id, "health") <= 0 then
+		state.cursor_control.active = false
+		state.cursor_control.player_id = nil
+		return
+	end
+	
+	-- Obter posição do cursor no mapa usando mousemapx e mousemapy
+	local cursor_x = player(player_id, "mousemapx")
+	local cursor_y = player(player_id, "mousemapy")
+	
+	-- Verificar se as coordenadas são válidas (-1 se não disponível)
+	if not cursor_x or not cursor_y or cursor_x < 0 or cursor_y < 0 then
+		return
+	end
+	
+	-- Mover bola suavemente para a posição do cursor (movimento mais natural)
+	local speed = 8  -- Velocidade reduzida para movimento mais suave
+	local dx = cursor_x - state.ball.x
+	local dy = cursor_y - state.ball.y
+	local dist = math.sqrt(dx * dx + dy * dy)
+	
+	if dist > 1 then
+		-- Normalizar e aplicar velocidade suave
+		local move_x = (dx / dist) * speed
+		local move_y = (dy / dist) * speed
+		
+		-- Aplicar movimento gradual através de mx/my para parecer natural
+		state.ball.mx = move_x * 0.7
+		state.ball.my = move_y * 0.7
+		
+		state.ball.x = state.ball.x + move_x
+		state.ball.y = state.ball.y + move_y
+		
+		-- Rotação proporcional à velocidade de movimento
+		state.ball.rotspeed = math.min(dist * 0.1, 5)
+	else
+		-- Se muito próximo, reduzir movimento para zero suavemente
+		state.ball.mx = state.ball.mx * 0.8
+		state.ball.my = state.ball.my * 0.8
+		state.ball.rotspeed = state.ball.rotspeed * 0.9
+	end
+	
+	-- Atualizar rotação
+	state.ball.rot = state.ball.rot + state.ball.rotspeed
+	if state.ball.rot > 360 then 
+		state.ball.rot = state.ball.rot - 360 
+	end
+	
+	-- Atualizar tile position
+	state.ball.xtile = MathUtils:pixel_to_tile(state.ball.x)
+	state.ball.ytile = MathUtils:pixel_to_tile(state.ball.y)
+	
+	-- Atualizar posição da imagem
+	ImageUtils:position(state.ball.img, state.ball.x, state.ball.y, state.ball.rot)
+	
+	-- Atualizar last position
+	state.ball.lastx = state.ball.x
+	state.ball.lasty = state.ball.y
+end
+
 -- Retornar módulo
 return BallService

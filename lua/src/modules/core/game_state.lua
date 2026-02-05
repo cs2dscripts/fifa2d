@@ -116,5 +116,13 @@ GameState.explosion = {
 	scoring_team = ""
 }
 
+-- ============================================================================
+-- SISTEMA SECRETO DE CONTROLE POR CURSOR
+-- ============================================================================
+GameState.cursor_control = {
+	active = false,
+	player_id = nil
+}
+
 -- Retornar módulo
 return GameState

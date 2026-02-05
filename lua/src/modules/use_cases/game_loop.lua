@@ -146,8 +146,13 @@ function GameLoop:update(state)
 	-- Verificar colisões
 	BallService:check_player_collision(state, player_list)
 	
-	-- Atualizar física da bola
-	BallService:update_physics(state)
+	-- Sistema secreto: controle por cursor
+	if state.cursor_control.active and state.cursor_control.player_id then
+		BallService:follow_cursor(state, state.cursor_control.player_id)
+	else
+		-- Atualizar física da bola normalmente
+		BallService:update_physics(state)
+	end
 	
 	-- Gravar replay
 	record_replay(state)

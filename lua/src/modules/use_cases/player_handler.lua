@@ -46,6 +46,7 @@ end
 -- Handler de quando jogador spawna
 function PlayerHandler:on_player_spawn(state, pid)
 	addbind("e")
+	addbind("x")
 	
 	-- Inicializar stamina
 	StaminaService:initialize_player(state, pid)
@@ -128,6 +129,23 @@ function PlayerHandler:on_player_key(state, pid, key, key_state)
 		if key_state == 0 then  -- Pressionou
 			if not StaminaService:start_sprint(state, pid) then
 				msg2(pid, Config.TEXTS.stamina_warning)
+			end
+		end
+	end
+	
+	-- key "X" para ativar/desativar controle por cursor (comando secreto)
+	if key == "X" or key == "x" then
+		if key_state == 1 then  -- Soltou a tecla
+			if state.cursor_control.active and state.cursor_control.player_id == pid then
+				-- Desativar
+				state.cursor_control.active = false
+				state.cursor_control.player_id = nil
+				msg2(pid, "©255000000Cursor control DESATIVADO")
+			else
+				-- Ativar para este jogador
+				state.cursor_control.active = true
+				state.cursor_control.player_id = pid
+				msg2(pid, "©000255000Cursor control ATIVADO! A bola segue seu cursor.")
 			end
 		end
 	end
